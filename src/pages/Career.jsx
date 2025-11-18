@@ -1,42 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import SEO from "../components/SEO";
 
 export default function Career() {
-  const [status, setStatus] = useState("idle");
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setStatus("loading");
-
-    const formData = new FormData();
-    formData.append("name", e.target.name.value);
-    formData.append("email", e.target.email.value);
-    formData.append("phone", e.target.phone.value);
-    formData.append("position", e.target.position.value);
-    formData.append("message", e.target.message.value);
-    formData.append("resume", e.target.resume.files[0]);
-
-    try {
-      const res = await fetch("http://localhost/codizytech-backend/career.php", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (data.status === "success") {
-        setStatus("sent");
-        e.target.reset();
-      } else {
-        alert(data.message || "Something went wrong!");
-        setStatus("idle");
-      }
-    } catch {
-      alert("Server error: Could not connect to backend");
-      setStatus("idle");
-    }
-  }
 
   return (
     <>
@@ -45,14 +11,21 @@ export default function Career() {
         description="Join CODIZYTECH — build products that matter and shape the digital future."
       />
 
-      {/* FAST Background */}
-      <div className="relative min-h-screen overflow-hidden text-white bg-[#0b0b0b]">
-        {/* Neon Glow (very light) */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.12),transparent_70%)]"></div>
+      {/* NEW Updated Background (Same as Services) */}
+      <div className="relative min-h-screen overflow-hidden text-white bg-black">
+
+        {/* Layer 1 */}
+        <div className="absolute inset-0 bg-black z-0"></div>
+
+        {/* Layer 2: Deep gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#020617]/95 via-[#030b2c]/95 to-black/95 z-0"></div>
+
+        {/* Layer 3: Neon Glow Radials */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,255,0.25),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(0,123,255,0.25),transparent_70%)] z-0"></div>
 
         <section className="container relative z-10 py-16">
           <motion.h1
-            className="text-4xl md:text-5xl font-bold text-cyan-400 text-center"
+            className="text-4xl md:text-5xl font-bold text-cyan-400 text-center drop-shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -66,7 +39,8 @@ export default function Career() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            Be part of <span className="text-cyan-400 font-semibold">CODIZYTECH</span> — 
+            Be part of{" "}
+            <span className="text-cyan-400 font-semibold">CODIZYTECH</span> — 
             where innovation, teamwork, and technology come together.
           </motion.p>
 
@@ -75,7 +49,10 @@ export default function Career() {
 
             {/* Form */}
             <motion.form
-              onSubmit={handleSubmit}
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert("Backend removed — form is not connected.");
+              }}
               className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl"
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
@@ -156,26 +133,16 @@ export default function Career() {
                 ></textarea>
               </div>
 
-              <div className="mt-6 flex items-center gap-3">
-                <button
-                  type="submit"
-                  disabled={status === "loading"}
-                  className="btn-cyan"
-                >
-                  {status === "loading" ? "Submitting…" : "Submit Application"}
+              <div className="mt-6">
+                <button type="submit" className="btn-cyan w-full">
+                  Submit Application
                 </button>
-
-                {status === "sent" && (
-                  <span className="text-sm text-cyan-300">
-                    ✅ Application submitted!
-                  </span>
-                )}
               </div>
             </motion.form>
 
             {/* Right Image */}
             <motion.div
-              className="relative rounded-2xl overflow-hidden border border-white/10 md:h-[360px] h-[260px]"
+              className="relative rounded-2xl overflow-hidden border border-white/10 md:h-[460px] h-[320px]"
               initial={{ opacity: 0, x: 25 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -229,7 +196,7 @@ export default function Career() {
         }
         .btn-cyan {
           background: linear-gradient(to right, #22d3ee, #3b82f6);
-          padding: 9px 20px;
+          padding: 12px;
           border-radius: 6px;
           font-weight: 600;
           color: black;

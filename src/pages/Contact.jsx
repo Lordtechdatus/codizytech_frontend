@@ -130,38 +130,15 @@ export default function Contact() {
   );
 }
 
-/* 🌐 Backend-Connected Contact Form Component */
+/* 🌐 NON-BACKEND Contact Form Component */
 function ContactForm() {
   const [status, setStatus] = useState("idle");
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
-    setStatus("loading");
-
-    const formData = new FormData();
-    formData.append("name", e.target.name.value);
-    formData.append("email", e.target.email.value);
-    formData.append("message", e.target.message.value);
-
-    try {
-      const res = await fetch("http://localhost/codizytech-backend/contact.php", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (data.status === "success") {
-        setStatus("sent");
-        e.target.reset();
-      } else {
-        alert(data.message);
-        setStatus("idle");
-      }
-    } catch (error) {
-      alert("Server unreachable. Check XAMPP or backend folder.");
-      setStatus("idle");
-    }
+    setStatus("sent");
+    alert("Backend removed — form is not connected.");
+    e.target.reset();
   }
 
   return (
@@ -209,9 +186,8 @@ function ContactForm() {
         <div className="flex items-center gap-3">
           <button
             className="bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold px-6 py-2 rounded-md hover:scale-105 transition"
-            disabled={status === "loading"}
           >
-            {status === "loading" ? "Sending…" : "Send Message"}
+            Send Message
           </button>
 
           {status === "sent" && (
