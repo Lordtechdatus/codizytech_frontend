@@ -7,31 +7,31 @@ const services = [
     title: "Web & App Development",
     desc: "We build scalable, high-performance websites and applications that combine beautiful design with seamless functionality. From responsive frontends to powerful backend systems — we bring your ideas to life.",
     image:
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1500",
+    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&w=900&q=70&fm=webp",
   },
   {
     title: "Digital Marketing",
     desc: "Grow your brand with strategic digital marketing — from SEO, SEM, and social campaigns to data-driven content strategies that connect you with the right audience at the right time.",
     image:
-    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1500",
+   "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&w=900&q=70&fm=webp",
   },
   {
     title: "Thesis Writing Assistance",
     desc: "Our experts assist students and researchers with professional thesis writing, topic selection, data analysis, and formatting — ensuring your research stands out with quality and precision.",
     image:
-      "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1500",
+    "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&w=900&q=70&fm=webp",
   },
   {
     title: "Data Analysis & AI Solutions",
     desc: "Transform data into decisions. We provide end-to-end data analysis, dashboards, and predictive AI models to help businesses make informed, data-driven decisions.",
     image:
-      "https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&q=80&w=1500",
+    "https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&w=900&q=70&fm=webp",
   },
   {
     title: "Training & Internship Programs",
     desc: "Empowering the next generation of developers and analysts through hands-on training and internship opportunities in cutting-edge technologies like React, Python, and AI.",
     image:
-      "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&q=80&w=1500",
+    "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&w=900&q=70&fm=webp",
   },
 ];
 

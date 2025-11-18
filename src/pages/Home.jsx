@@ -171,7 +171,8 @@ function AboutUsSection() {
           transition={{ duration: 0.8 }}
         >
           <img
-            src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1000&q=80"
+           loading="lazy"
+            src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=900&q=80&fm=webp"
             alt="About CodizyTech"
             className="w-full h-full object-cover rounded-3xl"
           />
@@ -191,7 +192,7 @@ function AboutUsSection() {
 
           <p className="text-neutral-300 text-lg leading-relaxed">
             At <span className="text-cyan-400 font-semibold">CodizyTech</span>, we don’t just build technology —
-            we build digital ecosystems that **empower innovation, accelerate growth, and transform businesses** for the future.
+            we build digital ecosystems that empower innovation, accelerate growth, and transform businesses for the future.
           </p>
 
           <div className="space-y-4 mt-6">
@@ -366,7 +367,8 @@ function WhyChooseUsSection() {
           transition={{ duration: 0.6 }}
         >
           <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80"
+           loading="lazy"
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80&fm=webp"
             alt="Why Choose Us"
             className="w-full h-full object-cover rounded-3xl"
           />
@@ -380,14 +382,14 @@ function WhyChooseUsSection() {
 /* 📸 Gallery Section */
 function GallerySection() {
   const galleryImages = [
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
-    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d",
-    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
-    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7",
-    "https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9",
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c",
-    "https://images.unsplash.com/photo-1531297484001-80022131f5a1",
-    "https://images.unsplash.com/photo-1581090700227-1e37b190418e",
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&w=800&q=80&fm=webp",
+    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&w=800&q=80&fm=webp",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&w=800&q=80&fm=webp",
+    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&w=800&q=80&fm=webp",
+    "https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?auto=format&w=800&q=80&fm=webp",
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&w=800&q=80&fm=webp",
+    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&w=800&q=80&fm=webp",
+    "https://images.unsplash.com/photo-1581090700227-1e37b190418e?auto=format&w=800&q=80&fm=webp"
    // "https://images.unsplash.com/photo-1518770660439-4636190af475",
     //"https://images.unsplash.com/photo-1551434678-e076c223a692",
     //"https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
@@ -432,28 +434,28 @@ function OfferingsSection() {
     {
       title: "Custom Web Solutions",
       desc: "Pixel-perfect, scalable web apps tailored to your brand.",
-      img: "https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&w=800&q=80&fm=webp",
       btn: "Get Started",
       link: "/services#web",
     },
     {
       title: "AI & Data Analytics",
       desc: "Make smarter decisions with next-gen data insights.",
-      img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&w=800&q=80&fm=webp",
       btn: "Learn More",
       link: "/services#data",
     },
     {
       title: "Digital Marketing",
       desc: "Amplify your digital presence with our strategies.",
-      img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&w=800&q=80&fm=webp",
       btn: "Explore",
       link: "/services#marketing",
     },
     {
       title: "Training & Internship",
       desc: "Gain hands-on experience with our guided programs.",
-      img: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&w=800&q=80&fm=webp",
       btn: "Join Now",
       link: "/career",
     },
