@@ -96,7 +96,7 @@ const AnimatedTechBackground = ({ count = 25 }) => {
   return <div ref={ref} className="absolute inset-0 overflow-hidden" />;
 };
 
-/* ⌨️ Typing Animation (No Blink / Light Effect) */
+/* ⌨️ PERFECT Centered Typing Animation — Mobile + Desktop FIX */
 const TextType = ({ text }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [index, setIndex] = useState(0);
@@ -106,9 +106,10 @@ const TextType = ({ text }) => {
   useEffect(() => {
     const currentText = text[textIndex];
     let timeout;
+
     if (isDeleting) {
       if (displayedText.length > 0) {
-        timeout = setTimeout(() => setDisplayedText((p) => p.slice(0, -1)), 30);
+        timeout = setTimeout(() => setDisplayedText(p => p.slice(0, -1)), 30);
       } else {
         setIsDeleting(false);
         setTextIndex((p) => (p + 1) % text.length);
@@ -126,27 +127,58 @@ const TextType = ({ text }) => {
         }, 1200);
       }
     }
+
     return () => clearTimeout(timeout);
   }, [displayedText, isDeleting, index, text, textIndex]);
 
   return (
-    <h1
-      className="text-4xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-b from-white to-cyan-200 tracking-wide"
-    >
-      {displayedText}
-    </h1>
+    <div className="w-full flex justify-center items-center">
+      <h1
+        className="
+          font-extrabold 
+          bg-clip-text text-transparent 
+          bg-gradient-to-b from-white to-cyan-200 
+          tracking-wide
+          text-center
+
+          /* Desktop */
+          md:text-6xl 
+
+          /* Mobile FIX */
+          text-[1.8rem] 
+          leading-tight 
+          max-w-[95%] 
+          break-words
+        "
+      >
+        {displayedText}
+      </h1>
+    </div>
   );
 };
 
 
-/* 🚀 Hero Section */
+
+/* 🚀 FIXED HERO SECTION (Mobile Icons Hidden + No Crash) */
 function Hero() {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
     <section className="relative h-[100vh] flex flex-col items-center justify-center bg-black overflow-hidden">
-      <GalaxyStarsBackground count={220} />
-      <AnimatedTechBackground count={35} />
+
+      {/* ⭐ Galaxy Stars – Always ON */}
+      <GalaxyStarsBackground count={isMobile ? 120 : 220} />
+
+      {/* ⚙ Floating Tech Icons – Desktop ONLY */}
+      {!isMobile && <AnimatedTechBackground count={35} />}
+
+      {/* TEXT SECTION */}
       <div className="relative z-10 text-center container px-4 pt-12">
+
+        {/* Typing Animation – Always ON */}
         <TextType text={["Empowering Ideas with Technology", "CODIZYTECH"]} />
+
+        {/* Subtitle */}
         <p className="mt-8 text-lg md:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
           We build digital solutions that drive innovation and success.
         </p>
@@ -154,6 +186,7 @@ function Hero() {
     </section>
   );
 }
+
 
 
 /* 🌟 About CodizyTech Section — Updated Version */
