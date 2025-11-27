@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /login
+Allow: /
+
+Sitemap: https://codizytech.com/sitemap.xml
+Host: https://codizytech.com

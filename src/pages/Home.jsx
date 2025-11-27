@@ -602,9 +602,9 @@ export default function Home() {
       <Hero />
       <BannerSection img="/images/b6.png" />
       <AboutUsSection />
-      <BannerSection img="/images/b6.png" />
-      <ServicesSection />
       <BannerSection img="/images/b5.jpg" />
+      <ServicesSection />
+      <BannerSection img="/images/b6.png" />
       <WhyChooseUsSection />
       <BannerSection img="/images/b5.jpg" />
       <GallerySection />
