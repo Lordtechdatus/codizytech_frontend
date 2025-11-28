@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import SEO from "../components/SEO";
 
@@ -52,7 +52,7 @@ export default function Contact() {
                 title="CODIZYTECH Office Location"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="w-full h-full grayscale hover:grayscale-0 transition duration-500"
+                className="w-full h-full transition duration-500"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3579.597342625845!2d78.18833419344783!3d26.209773684130333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3976c41cce3cd799%3A0x184f3cb9095a386c!2zQWthbnNoYSBBcGFydG1lbnQgKOCkhuCkleCkvuCkguCktuCkviDgpIXgpKrgpL7gpLDgpY3gpJ_gpK7gpYfgpILgpJ8p!5e0!3m2!1sen!2sin!4v1762507380211!5m2!1sen!2sin"
                 allowFullScreen
               ></iframe>
@@ -89,7 +89,7 @@ export default function Contact() {
               </h3>
               <p className="text-neutral-300 text-sm">Call us anytime:</p>
               <p className="text-cyan-300 font-medium mt-2 text-sm">
-                +91-8770182940
+                +91-87701 82940
               </p>
               <p className="text-xs text-neutral-400 mt-1">
                 Mon - Sat: 09:00 AM to 6:00 PM
@@ -132,71 +132,172 @@ export default function Contact() {
 
 /* 🌐 NON-BACKEND Contact Form Component */
 function ContactForm() {
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function onSubmit(e) {
+  useEffect(() => {
+    if (status === "sent") {
+      const t = setTimeout(() => setStatus(""), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [status]);
+
+  async function onSubmit(e) {
     e.preventDefault();
-    setStatus("sent");
-    alert("Backend removed — form is not connected.");
-    e.target.reset();
+    setLoading(true);
+
+    const formData = new FormData(e.target);
+
+    try {
+      const res = await fetch("https://codizytech.com/backend/contact_submit.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.status === "success") {
+        setStatus("sent");
+        e.target.reset();
+      } else {
+        setStatus("error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setStatus("error");
+    }
+
+    setLoading(false);
   }
 
   return (
-    <motion.form
-      onSubmit={onSubmit}
-      className="glass rounded-2xl p-8 border border-white/10 backdrop-blur-lg"
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.8 }}
-    >
-      <div className="grid gap-5">
-        <div>
-          <label className="text-sm text-neutral-300">Name</label>
-          <input
-            required
-            type="text"
-            name="name"
-            placeholder="Your name"
-            className="mt-1 w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-cyan-400"
-          />
-        </div>
+    <>
+      {/* MAIN FORM */}
+      <motion.form
+        onSubmit={onSubmit}
+        className="glass rounded-2xl p-8 border border-white/10 backdrop-blur-lg"
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="grid gap-5">
 
-        <div>
-          <label className="text-sm text-neutral-300">Email</label>
-          <input
-            required
-            type="email"
-            name="email"
-            placeholder="you@example.com"
-            className="mt-1 w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-cyan-400"
-          />
-        </div>
+          {/* Name */}
+          <div>
+            <label className="text-sm text-neutral-300">Name</label>
+            <input
+              required
+              type="text"
+              name="name"
+              placeholder="Your name"
+              className="mt-1 w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-cyan-400"
+            />
+          </div>
 
-        <div>
-          <label className="text-sm text-neutral-300">Message</label>
-          <textarea
-            required
-            name="message"
-            rows="5"
-            placeholder="How can we help?"
-            className="mt-1 w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-cyan-400"
-          />
-        </div>
+          {/* Email */}
+          <div>
+            <label className="text-sm text-neutral-300">Email</label>
+            <input
+              required
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              className="mt-1 w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-cyan-400"
+            />
+          </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            className="bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold px-6 py-2 rounded-md hover:scale-105 transition"
-          >
-            Send Message
-          </button>
+          {/* Mobile */}
+          <div>
+            <label className="text-sm text-neutral-300">Mobile No.</label>
+            <input
+              required
+              type="tel"
+              name="mobile"
+              placeholder="Enter your mobile number"
+              className="mt-1 w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-cyan-400"
+            />
+          </div>
 
-          {status === "sent" && (
-            <span className="text-sm text-cyan-300">
-              ✅ Message sent successfully!
-            </span>
-          )}
+          {/* Message */}
+          <div>
+            <label className="text-sm text-neutral-300">Message</label>
+            <textarea
+              required
+              name="message"
+              rows="5"
+              placeholder="How can we help?"
+              className="mt-1 w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-cyan-400"
+            />
+          </div>
+
+          {/* Button */}
+          <div className="flex items-center gap-3">
+            <button
+              disabled={loading}
+              className={`bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold px-6 py-2 rounded-md transition ${
+                loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
+              }`}
+            >
+              {loading ? "Sending..." : "Send Message"}
+            </button>
+          </div>
         </div>
-      </div>
-    </motion.form>
+      </motion.form>
+
+      {/* STATUS POPUP */}
+      {status === "sent" && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5, y: -30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/40 backdrop-blur-sm"
+        >
+          <div className="glass p-6 rounded-2xl border border-white/10 backdrop-blur-xl shadow-xl text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+              className="text-4xl mb-3 text-green-400"
+            >
+              ✔
+            </motion.div>
+            <h3 className="text-white text-lg font-semibold">
+              Message Sent Successfully!
+            </h3>
+            <p className="text-neutral-400 text-sm mt-1">
+              Our team will contact you shortly.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {status === "error" && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5, y: -30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/40 backdrop-blur-sm"
+        >
+          <div className="glass p-6 rounded-2xl border border-red-400/20 backdrop-blur-xl shadow-xl text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+              className="text-4xl mb-3 text-red-400"
+            >
+              ✖
+            </motion.div>
+            <h3 className="text-white text-lg font-semibold">
+              Something went wrong!
+            </h3>
+            <p className="text-neutral-400 text-sm mt-1">
+              Please try again later.
+            </p>
+          </div>
+        </motion.div>
+      )}
+    </>
   );
 }
