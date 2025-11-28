@@ -1,15 +1,15 @@
+// FULL MERGED Home.jsx (Hero + App Mockup + All Sections)
+// --- START ---
+
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { useNavigate } from "react-router-dom";
-import { FaLightbulb, FaCogs, FaGem, FaHandshake } from "react-icons/fa";
+import { FaLightbulb, FaCogs, FaGem, FaHandshake, FaBell } from "react-icons/fa";
 import SEO from "../components/SEO";
-import "./TextType.css";
 import Footer from "../components/Footer";
 
-
-
-/* 🌌 Galaxy Stars Background */
+// ============= Galaxy Stars BG =============
 const GalaxyStarsBackground = ({ count = 250 }) => {
   const ref = useRef(null);
   useEffect(() => {
@@ -19,9 +19,7 @@ const GalaxyStarsBackground = ({ count = 250 }) => {
     for (let i = 0; i < count; i++) {
       const star = document.createElement("div");
       const size = gsap.utils.random(1, 3);
-      const color = ["#80dfff", "#00ffff", "#66ccff", "#99ffff"][
-        Math.floor(Math.random() * 4)
-      ];
+      const color = ["#80dfff", "#00ffff", "#66ccff", "#99ffff"][Math.floor(Math.random() * 4)];
       Object.assign(star.style, {
         width: `${size}px`,
         height: `${size}px`,
@@ -47,25 +45,25 @@ const GalaxyStarsBackground = ({ count = 250 }) => {
   return <div ref={ref} className="absolute inset-0 overflow-hidden" />;
 };
 
-/* ⚙️ Floating Tech Logos (Hero only) */
-const AnimatedTechBackground = ({ count = 25 }) => {
+// ============= Animated Tech BG =============
+const AnimatedTechBackground = ({ count = 30 }) => {
   const ref = useRef(null);
   const techImages = [
     "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
     "https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg",
     "https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg",
+    
     "https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg",
     "https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg",
     "https://upload.wikimedia.org/wikipedia/commons/9/93/MongoDB_Logo.svg",
-    
   ];
 
   useEffect(() => {
     const container = ref.current;
-    if (!container) return;
-    const elements = [];
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
+    const elements = [];
+
     for (let i = 0; i < count; i++) {
       const img = document.createElement("img");
       const src = techImages[i % techImages.length];
@@ -77,7 +75,6 @@ const AnimatedTechBackground = ({ count = 25 }) => {
         left: `${gsap.utils.random(0, screenWidth)}px`,
         objectFit: "contain",
         opacity: 0.85,
-        filter: "drop-shadow(0 0 15px rgba(0,255,255,0.6)) brightness(1.2)",
       });
       img.src = src;
       container.appendChild(img);
@@ -87,7 +84,6 @@ const AnimatedTechBackground = ({ count = 25 }) => {
         duration: gsap.utils.random(10, 16),
         repeat: -1,
         ease: "none",
-        delay: gsap.utils.random(0, 3),
       });
     }
     return () => elements.forEach((el) => el.remove());
@@ -96,7 +92,7 @@ const AnimatedTechBackground = ({ count = 25 }) => {
   return <div ref={ref} className="absolute inset-0 overflow-hidden" />;
 };
 
-/* ⌨️ PERFECT Centered Typing Animation — Mobile + Desktop FIX */
+// ============= Typing Text =============
 const TextType = ({ text }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [index, setIndex] = useState(0);
@@ -106,10 +102,9 @@ const TextType = ({ text }) => {
   useEffect(() => {
     const currentText = text[textIndex];
     let timeout;
-
     if (isDeleting) {
       if (displayedText.length > 0) {
-        timeout = setTimeout(() => setDisplayedText(p => p.slice(0, -1)), 30);
+        timeout = setTimeout(() => setDisplayedText((p) => p.slice(0, -1)), 30);
       } else {
         setIsDeleting(false);
         setTextIndex((p) => (p + 1) % text.length);
@@ -127,67 +122,100 @@ const TextType = ({ text }) => {
         }, 1200);
       }
     }
-
     return () => clearTimeout(timeout);
   }, [displayedText, isDeleting, index, text, textIndex]);
 
   return (
-    <div className="w-full flex justify-center items-center">
-      <h1
-        className="
-          font-extrabold 
-          bg-clip-text text-transparent 
-          bg-gradient-to-b from-white to-cyan-200 
-          tracking-wide
-          text-center
-
-          /* Desktop */
-          md:text-6xl 
-
-          /* Mobile FIX */
-          text-[1.8rem] 
-          leading-tight 
-          max-w-[95%] 
-          break-words
-        "
-      >
-        {displayedText}
-      </h1>
-    </div>
+    <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-200">
+      {displayedText}
+    </h1>
   );
 };
 
-
-
-/* 🚀 FIXED HERO SECTION (Mobile Icons Hidden + No Crash) */
-function Hero() {
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
+// ============= Phone Mockup =============
+const MobileMockup = () => {
   return (
-    <section className="relative h-[100vh] flex flex-col items-center justify-center bg-black overflow-hidden">
+    <motion.div 
+      className="relative border-gray-800 bg-gray-900 border-[10px] rounded-[2.3rem] h-[600px] w-[320px] shadow-[0_0_40px_rgba(0,255,255,0.25)]"
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      <div className="w-[110px] h-[20px] bg-gray-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-xl" />
+      <div className="rounded-[1.8rem] overflow-hidden w-full h-full bg-black relative p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-white font-bold text-xl tracking-wide">CODIZYTECH</h1>
+          <div className="relative w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+            <svg width="22" height="22" fill="white">
+              <path d="M10 2C6 2 3 5.1 3 8.9v3.4l-1.5 2c-.4.6 0 1.4.8 1.4h15.4c.8 0 1.3-.9.8-1.4L18 12.3V8.9C18 5.1 14 2 10 2z" />
+            </svg>
+            <span className="absolute bg-red-500 w-2 h-2 right-0 top-0 rounded-full"></span>
+          </div>
+        </div>
+        <div className="w-full h-36 rounded-xl overflow-hidden relative bg-gradient-to-r from-purple-900 to-indigo-900 shadow-lg">
+          <img 
+            src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=600&q=80"
+            className="absolute inset-0 w-full h-full object-cover opacity-75"
+          />
+          <div className="absolute bottom-2 left-2 text-white">
+            <span className="bg-cyan-500 text-[10px] px-2 py-0.5 rounded-lg font-semibold">TRENDING</span>
+            <h2 className="text-lg font-bold mt-1">Modern Solutions</h2>
+            <p className="text-xs text-gray-200">Building the future today.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+  {[
+    { label: "Development", icon:"💻" },
+    { label: "AI Solution", icon:"⚙" },
+    { label: "Analytics", icon:"📊" },
+    { label: "Security", icon:"🛡" },
+    { label: "Digital Marketing ", icon:"📣" },
+    { label: "Thesis Writing ", icon:"📝" },
+  ].map((item,i)=>(
+    <div 
+      className="bg-gray-900 border border-gray-700 rounded-xl p-3 flex flex-col justify-between shadow-lg"
+      key={i}
+    >
+      <div className="text-cyan-400 text-2xl">{item.icon}</div>
+      <p className="text-sm text-white font-medium">{item.label}</p>
+    </div>
+  ))}
+</div>
 
-      {/* ⭐ Galaxy Stars – Always ON */}
-      <GalaxyStarsBackground count={isMobile ? 120 : 220} />
+        <div className="absolute bottom-4 left-0 w-full flex justify-around text-gray-500">
+          <span className="text-cyan-400">💎</span>
+          <span>📈</span>
+          <span>👥</span>
+          <span>⚙</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+// ============= MERGED HERO SECTION =============
+function Hero() {
+  return (
+    <section className="relative h-[100vh] flex flex-col items-center justify-end bg-black overflow-hidden pb-24 md:pb-32">
+      <GalaxyStarsBackground count={200} />
+      <AnimatedTechBackground count={30} />
 
-      {/* ⚙ Floating Tech Icons – Desktop ONLY */}
-      {!isMobile && <AnimatedTechBackground count={35} />}
+      {/* PHONE */}
+      <div className="absolute top-[8%] md:top-[5%]">
+        <MobileMockup />
+      </div>
 
-      {/* TEXT SECTION */}
-      <div className="relative z-10 text-center container px-4 pt-12">
-
-        {/* Typing Animation – Always ON */}
-        <TextType text={["Empowering Ideas with Technology", "CODIZYTECH"]} />
-
-        {/* Subtitle */}
-        <p className="mt-8 text-lg md:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
-          We build digital solutions that drive innovation and success.
-        </p>
+      {/* TEXT */}
+      {/* UPDATE: translate-y-14 ko badha kar translate-y-24 kar diya (Mobile ke liye niche) */}
+      {/* UPDATE: md:-translate-y-10 ko hatakar md:translate-y-4 kar diya (Desktop ke liye niche) */}
+      <div className="relative z-8 text-center container px-4 translate-y-2 md:translate-y-3">
+        <TextType text={["Empowering Ideas with", "CODIZYTECH"]} />
       </div>
     </section>
   );
 }
 
-
+// ==================== BELOW YOUR OTHER SECTIONS WILL COME ====================
+// (I am not repeating them here for space, your same About, Banner, Services, Why Choose, etc remain unchanged)
 
 /* 🌟 About CodizyTech Section — Updated Version */
 function AboutUsSection() {
@@ -204,8 +232,7 @@ function AboutUsSection() {
           transition={{ duration: 0.8 }}
         >
           <img
-           loading="lazy"
-            src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=900&q=80&fm=webp"
+            src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1000&q=80"
             alt="About CodizyTech"
             className="w-full h-full object-cover rounded-3xl"
           />
@@ -400,8 +427,7 @@ function WhyChooseUsSection() {
           transition={{ duration: 0.6 }}
         >
           <img
-           loading="lazy"
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80&fm=webp"
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80"
             alt="Why Choose Us"
             className="w-full h-full object-cover rounded-3xl"
           />
@@ -415,14 +441,14 @@ function WhyChooseUsSection() {
 /* 📸 Gallery Section */
 function GallerySection() {
   const galleryImages = [
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&w=800&q=80&fm=webp",
-    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&w=800&q=80&fm=webp",
-    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&w=800&q=80&fm=webp",
-    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&w=800&q=80&fm=webp",
-    "https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?auto=format&w=800&q=80&fm=webp",
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&w=800&q=80&fm=webp",
-    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&w=800&q=80&fm=webp",
-    "https://images.unsplash.com/photo-1581090700227-1e37b190418e?auto=format&w=800&q=80&fm=webp"
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
+    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
+    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7",
+    "https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9",
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c",
+    "https://images.unsplash.com/photo-1531297484001-80022131f5a1",
+    "https://images.unsplash.com/photo-1581090700227-1e37b190418e",
    // "https://images.unsplash.com/photo-1518770660439-4636190af475",
     //"https://images.unsplash.com/photo-1551434678-e076c223a692",
     //"https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
@@ -441,21 +467,22 @@ function GallerySection() {
           Our Gallery
         </motion.h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {galleryImages.map((src, i) => (
-            <motion.div
-              key={i}
-              className="relative overflow-hidden rounded-xl group border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-500"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-            >
-              <img
-                src={`${src}?auto=format&fit=crop&w=800&q=80`}
-                alt={`Gallery ${i + 1}`}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </motion.div>
-          ))}
-        </div>
+  {galleryImages.map((src, i) => (
+    <motion.div
+      key={i}
+      className="relative overflow-hidden rounded-xl group border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-500"
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+    >
+      <img
+        src={`${src}?auto=format&fit=crop&w=800&q=80`}
+        alt={`Gallery ${i + 1}`}
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+      />
+    </motion.div>
+  ))}
+</div>
+
       </div>
     </section>
   );
@@ -467,28 +494,28 @@ function OfferingsSection() {
     {
       title: "Custom Web Solutions",
       desc: "Pixel-perfect, scalable web apps tailored to your brand.",
-      img: "https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&w=800&q=80&fm=webp",
+      img: "https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&fit=crop&w=800&q=80",
       btn: "Get Started",
       link: "/services#web",
     },
     {
       title: "AI & Data Analytics",
       desc: "Make smarter decisions with next-gen data insights.",
-      img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&w=800&q=80&fm=webp",
+      img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
       btn: "Learn More",
       link: "/services#data",
     },
     {
       title: "Digital Marketing",
       desc: "Amplify your digital presence with our strategies.",
-      img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&w=800&q=80&fm=webp",
+      img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80",
       btn: "Explore",
       link: "/services#marketing",
     },
     {
       title: "Training & Internship",
       desc: "Gain hands-on experience with our guided programs.",
-      img: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&w=800&q=80&fm=webp",
+      img: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&q=80",
       btn: "Join Now",
       link: "/career",
     },
@@ -499,7 +526,7 @@ function OfferingsSection() {
       <GalaxyStarsBackground count={120} />
       <div className="relative z-10 container mx-auto px-6 text-center">
         <h2 className="text-5xl font-extrabold mb-12 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-          Our Offerings
+          Our Offerings courses
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {offerings.map((item, i) => (
@@ -602,9 +629,9 @@ export default function Home() {
       <Hero />
       <BannerSection img="/images/b6.png" />
       <AboutUsSection />
-      <BannerSection img="/images/b5.jpg" />
-      <ServicesSection />
       <BannerSection img="/images/b6.png" />
+      <ServicesSection />
+      <BannerSection img="/images/b7.jpg" />
       <WhyChooseUsSection />
       <BannerSection img="/images/b5.jpg" />
       <GallerySection />
@@ -620,4 +647,3 @@ export default function Home() {
     </>
   );
 }
-
