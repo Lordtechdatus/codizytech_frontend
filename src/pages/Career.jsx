@@ -11,10 +11,19 @@ export default function Career() {
     message: "",
     resume: null,
   });
-  
+  const [status, setStatus] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (status === "sent") {
+      const t = setTimeout(() => setStatus(""), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [status]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setLoading(true);
     let formData = new FormData();
     formData.append("fullName", form.fullName);
     formData.append("email", form.email);
@@ -22,14 +31,29 @@ export default function Career() {
     formData.append("position", form.position);
     formData.append("message", form.message);
     formData.append("resume", form.resume);
-  
-    const res = await fetch("https://codizytech.com/backend/career_submit.php", {
-      method: "POST",
-      body: formData,
-    });
-  
-    const data = await res.json();
-    alert(data.message);
+    try {
+      const res = await fetch("https://codizytech.com/backend/career_submit.php", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.status === "success" || data.message) {
+        setStatus("sent");
+        e.target.reset();
+        setForm({
+          fullName: "",
+          email: "",
+          contact: "",
+          position: "",
+          message: "",
+          resume: null,
+        });
+      }
+      // Optionally handle error
+    } catch (err) {
+      // Optionally add error popup
+    }
+    setLoading(false);
   };
   
 
@@ -121,21 +145,24 @@ export default function Career() {
     </div>
 
     <div>
-      <label className="text-sm text-neutral-300">Applying For</label>
-      <select
-        required
-        className="input-box text-neutral-300"
-        onChange={(e) => setForm({ ...form, position: e.target.value })}
-      >
-        <option value="">Select position</option>
-        <option>Frontend Developer</option>
-        <option>Backend Developer</option>
-        <option>Data Analyst</option>
-        <option>UI/UX Designer</option>
-        <option>Digital Marketing</option>
-        <option>Internship</option>
-      </select>
-    </div>
+  <label className="text-sm text-neutral-300">Applying For</label>
+  <select
+    required
+    className="w-full bg-white/5 border border-white/10 text-white px-3 py-2 rounded-md outline-none focus:border-cyan-400 mt-1"
+    onChange={(e) => setForm({ ...form, position: e.target.value })}
+  >
+    <option value="" className="text-neutral-700 bg-white">Select position</option>
+    <option className="text-black">Frontend Developer</option>
+    <option className="text-black">Backend Developer</option>
+    <option className="text-black">Full Stack Developer</option>
+    <option className="text-black">App Developer</option>
+    <option className="text-black">Data Analyst</option>
+    <option className="text-black">UI/UX Designer</option>
+    <option className="text-black">Digital Marketing</option>
+    <option className="text-black">Internship</option>
+  </select>
+</div>
+
 
     <div className="md:col-span-2">
       <label className="text-sm text-neutral-300">Upload Resume</label>
@@ -160,11 +187,43 @@ export default function Career() {
     ></textarea>
   </div>
 
-  <div className="mt-6">
-    <button type="submit" className="btn-cyan w-full">
-      Submit Application
-    </button>
-  </div>
+  {status === "sent" && (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.5, y: -20 }}
+    animate={{ opacity: 1, scale: 1, y: 0 }}
+    exit={{ opacity: 0, scale: 0.8 }}
+    transition={{ duration: 0.4 }}
+    className="fixed inset-0 flex items-center justify-center z-50 bg-black/40 backdrop-blur-sm"
+  >
+    <div className="glass p-6 rounded-2xl border border-white/10 backdrop-blur-xl shadow-xl text-center">
+
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 10 }}
+        className="text-4xl mb-3 text-green-400"
+      >
+        ✔
+      </motion.div>
+
+      <h3 className="text-white text-lg font-semibold">
+        Application Submitted!
+      </h3>
+
+      <p className="text-neutral-400 text-sm mt-1">
+        Our team will contact you soon.
+      </p>
+    </div>
+    
+  </motion.div>
+)}
+<div className="mt-6">
+  <button type="submit" className="btn-cyan w-full" disabled={loading}>
+    {loading ? "Submitting..." : "Submit Application"}
+  </button>
+</div>
+
+
 </motion.form>
 
 
