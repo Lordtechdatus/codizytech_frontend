@@ -174,26 +174,44 @@ export default function About() {
           </motion.h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {/* Cards */}
-            {[ 
-              { label: "Happy Clients", value: 150 },
-              { label: "Projects Delivered", value: 220 },
-              { label: "Countries Served", value: 12 },
-              { label: "Years Experience", value: 5 },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                className="bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-xl"
-              >
-                <h3 className="text-4xl font-bold text-cyan-400">
-                  <Counter to={item.value} />+
-                </h3>
-                <p className="text-neutral-300 mt-2 text-sm">{item.label}</p>
-              </motion.div>
-            ))}
-          </div>
+
+{[
+  { label: "Trusted Clients", value: 75, icon: "👥" },
+  { label: "Projects Delivered", value: 100, icon: "📦" },
+  { label: "On-Time Project Completion", value: 98, icon: "⏱️", isPercentage: true },
+  { label: "Years Experience", value: 5, icon: "🚀" },
+].map((item, i) => (
+  <motion.div
+    key={i}
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: i * 0.1 }}
+    className="group relative p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl overflow-hidden hover:scale-105 transition-all duration-300"
+  >
+    {/* Animated gradient ring */}
+    <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-all duration-500 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 blur-2xl"></div>
+
+    {/* Icon Box */}
+    <div className="relative mx-auto w-16 h-16 flex items-center justify-center rounded-full 
+                    bg-white/10 border border-white/20 backdrop-blur-md
+                    group-hover:bg-cyan-500/10 transition-all duration-300">
+      <span className="text-3xl">{item.icon}</span>
+    </div>
+
+    {/* Number */}
+    <h3 className="relative text-4xl font-extrabold text-cyan-400 mt-4">
+      <Counter to={item.value} />
+      {item.isPercentage ? "%" : "+"}
+    </h3>
+
+    {/* Label */}
+    <p className="relative text-neutral-300 mt-2 text-sm tracking-wide">
+      {item.label}
+    </p>
+  </motion.div>
+))}
+</div>
+
         </section>
 
         {/* Partners */}

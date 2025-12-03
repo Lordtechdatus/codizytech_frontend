@@ -5,21 +5,48 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { useNavigate } from "react-router-dom";
-import { FaLightbulb, FaCogs, FaGem, FaHandshake, FaBell } from "react-icons/fa";
+import { FaLightbulb, FaCogs, FaGem, FaHandshake } from "react-icons/fa";
 import SEO from "../components/SEO";
 import Footer from "../components/Footer";
 
-// ============= Galaxy Stars BG =============
-const GalaxyStarsBackground = ({ count = 250 }) => {
+// ============= Small Hook: Desktop Detection (for perf) =============
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      if (typeof window !== "undefined") {
+        setIsDesktop(window.innerWidth >= 768);
+      }
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return isDesktop;
+};
+
+// ============= Galaxy Stars BG (optimized) =============
+const GalaxyStarsBackground = ({ count = 80 }) => {
   const ref = useRef(null);
+
   useEffect(() => {
     const container = ref.current;
     if (!container) return;
+
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    const effectiveCount = isMobile ? Math.floor(count * 0.4) : count;
+
     const stars = [];
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < effectiveCount; i++) {
       const star = document.createElement("div");
-      const size = gsap.utils.random(1, 3);
-      const color = ["#80dfff", "#00ffff", "#66ccff", "#99ffff"][Math.floor(Math.random() * 4)];
+      const size = gsap.utils.random(1, 2.5);
+      const color = ["#80dfff", "#00ffff", "#66ccff", "#99ffff"]
+[
+        Math.floor(Math.random() * 4)
+      ];
+
       Object.assign(star.style, {
         width: `${size}px`,
         height: `${size}px`,
@@ -29,30 +56,33 @@ const GalaxyStarsBackground = ({ count = 250 }) => {
         left: `${gsap.utils.random(0, window.innerWidth)}px`,
         borderRadius: "50%",
         opacity: Math.random(),
-        boxShadow: `0 0 ${size * 6}px ${color}`,
+        boxShadow: `0 0 ${size * 5}px ${color}`,
       });
+
       container.appendChild(star);
       stars.push(star);
+
       gsap.to(star, {
         opacity: gsap.utils.random(0.3, 1),
-        duration: gsap.utils.random(1, 3),
+        duration: gsap.utils.random(1.5, 3),
         repeat: -1,
         yoyo: true,
       });
     }
+
     return () => stars.forEach((s) => s.remove());
   }, [count]);
-  return <div ref={ref} className="absolute inset-0 overflow-hidden" />;
+
+  return <div ref={ref} className="pointer-events-none absolute inset-0 overflow-hidden" />;
 };
 
-// ============= Animated Tech BG =============
-const AnimatedTechBackground = ({ count = 30 }) => {
+// ============= Animated Tech BG (desktop-only, optimized) =============
+const AnimatedTechBackground = ({ count = 12 }) => {
   const ref = useRef(null);
   const techImages = [
     "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
     "https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg",
     "https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg",
-    
     "https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg",
     "https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg",
     "https://upload.wikimedia.org/wikipedia/commons/9/93/MongoDB_Logo.svg",
@@ -60,36 +90,50 @@ const AnimatedTechBackground = ({ count = 30 }) => {
 
   useEffect(() => {
     const container = ref.current;
+    if (!container) return;
+
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    if (isMobile) return; // no DOM / animations on mobile
+
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const elements = [];
 
-    for (let i = 0; i < count; i++) {
+    const effectiveCount = count; // already low
+
+    for (let i = 0; i < effectiveCount; i++) {
       const img = document.createElement("img");
       const src = techImages[i % techImages.length];
       Object.assign(img.style, {
-        width: "70px",
-        height: "70px",
+        width: "60px",
+        height: "60px",
         position: "absolute",
         top: `${gsap.utils.random(0, screenHeight)}px`,
         left: `${gsap.utils.random(0, screenWidth)}px`,
         objectFit: "contain",
-        opacity: 0.85,
+        opacity: 0.8,
+        willChange: "transform",
       });
       img.src = src;
       container.appendChild(img);
       elements.push(img);
+
       gsap.to(img, {
         y: -screenHeight - 100,
-        duration: gsap.utils.random(10, 16),
+        duration: gsap.utils.random(15, 30),
         repeat: -1,
         ease: "none",
+        force3D: true,
+        stagger: 0.2,
       });
+      
     }
+
     return () => elements.forEach((el) => el.remove());
   }, [count, techImages]);
 
-  return <div ref={ref} className="absolute inset-0 overflow-hidden" />;
+  // hidden on mobile by CSS bhi + logic upar bhi safe
+  return <div ref={ref} className="hidden md:block absolute inset-0 overflow-hidden" />;
 };
 
 // ============= Typing Text =============
@@ -104,7 +148,10 @@ const TextType = ({ text }) => {
     let timeout;
     if (isDeleting) {
       if (displayedText.length > 0) {
-        timeout = setTimeout(() => setDisplayedText((p) => p.slice(0, -1)), 30);
+        timeout = setTimeout(
+          () => setDisplayedText((p) => p.slice(0, -1)),
+          30
+        );
       } else {
         setIsDeleting(false);
         setTextIndex((p) => (p + 1) % text.length);
@@ -126,113 +173,144 @@ const TextType = ({ text }) => {
   }, [displayedText, isDeleting, index, text, textIndex]);
 
   return (
-    <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-200">
-      {displayedText}
-    </h1>
+<h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-cyan-300 leading-tight">
+  {displayedText}
+</h1>
+
+
+  
   );
 };
 
 // ============= Phone Mockup =============
 const MobileMockup = () => {
   return (
-    <motion.div 
-      className="relative border-gray-800 bg-gray-900 border-[10px] rounded-[2.3rem] h-[600px] w-[320px] shadow-[0_0_40px_rgba(0,255,255,0.25)]"
-      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+    <motion.div
+    className="relative border-gray-800 bg-gray-900 border-[10px] rounded-[2.3rem]
+    h-[470px] w-[260px]
+    sm:h-[528px] sm:w-[280px]
+    shadow-[0_0_40px_rgba(0,255,255,0.25)]"
+      initial={{ opacity: 0, scale: 0.85, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
       <div className="w-[110px] h-[20px] bg-gray-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-xl" />
-      <div className="rounded-[1.8rem] overflow-hidden w-full h-full bg-black relative p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-white font-bold text-xl tracking-wide">CODIZYTECH</h1>
-          <div className="relative w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+      <div className="rounded-[1.8rem] overflow-hidden w-full h-full bg-black relative p-4 sm:p-5 space-y-2">
+      <div className="flex items-center justify-between -mt-2">
+  <h1 className="text-white font-bold text-lg sm:text-xl tracking-wide">
+    CODIZYTECH
+  </h1>
+  <div className="relative w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
             <svg width="22" height="22" fill="white">
               <path d="M10 2C6 2 3 5.1 3 8.9v3.4l-1.5 2c-.4.6 0 1.4.8 1.4h15.4c.8 0 1.3-.9.8-1.4L18 12.3V8.9C18 5.1 14 2 10 2z" />
             </svg>
             <span className="absolute bg-red-500 w-2 h-2 right-0 top-0 rounded-full"></span>
           </div>
         </div>
-        <div className="w-full h-36 rounded-xl overflow-hidden relative bg-gradient-to-r from-purple-900 to-indigo-900 shadow-lg">
-          <img 
-            src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=600&q=80"
+
+        <div className="w-full h-32 sm:h-36 rounded-xl overflow-hidden relative bg-gradient-to-r from-purple-900 to-indigo-900 shadow-lg -mt-2">
+          <img
+            loading="lazy"
+            decoding="async"
+            src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=600&q=80&fm=webp"
             className="absolute inset-0 w-full h-full object-cover opacity-75"
+            alt="Modern Solutions"
           />
-          <div className="absolute bottom-2 left-2 text-white">
-            <span className="bg-cyan-500 text-[10px] px-2 py-0.5 rounded-lg font-semibold">TRENDING</span>
-            <h2 className="text-lg font-bold mt-1">Modern Solutions</h2>
-            <p className="text-xs text-gray-200">Building the future today.</p>
+          <div className="absolute bottom-6 left-2 text-white">
+            <span className="bg-cyan-500 text-[9px] sm:text-[10px] px-2 py-0.5 rounded-lg font-semibold">
+              TRENDING
+            </span>
+            <h2 className="text-sm sm:text-lg font-bold mt-1">
+              Modern Solutions
+            </h2>
+            <p className="text-[10px] sm:text-xs text-gray-200">
+              Building the future today.
+            </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-  {[
-    { label: "Development", icon:"💻" },
-    { label: "AI Solution", icon:"⚙" },
-    { label: "Analytics", icon:"📊" },
-    { label: "Security", icon:"🛡" },
-    { label: "Digital Marketing ", icon:"📣" },
-    { label: "Thesis Writing ", icon:"📝" },
-  ].map((item,i)=>(
-    <div 
-      className="bg-gray-900 border border-gray-700 rounded-xl p-3 flex flex-col justify-between shadow-lg"
-      key={i}
-    >
-      <div className="text-cyan-400 text-2xl">{item.icon}</div>
-      <p className="text-sm text-white font-medium">{item.label}</p>
-    </div>
-  ))}
-</div>
 
-        <div className="absolute bottom-4 left-0 w-full flex justify-around text-gray-500">
+        <div className="grid grid-cols-2 gap-3 -mt-6">
+          {[
+            { label: "Development", icon: "💻" },
+            { label: "AI Solution", icon: "⚙️" },
+            { label: "Analytics", icon: "📊" },
+            { label: "Security", icon: "🛡️" },
+            { label: "Digital Marketing", icon: "📣" },
+            { label: "Thesis Writing", icon: "📝" },
+          ].map((item, i) => (
+            <div
+              className="bg-gray-900 border border-gray-700 rounded-xl p-2 sm:p-3 flex flex-col justify-between shadow-lg"
+              key={i}
+            >
+              <div className="text-cyan-400 text-xl sm:text-2xl">
+                {item.icon}
+              </div>
+              <p className="text-[11px] sm:text-sm text-white font-medium">
+                {item.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="absolute bottom-0 left-0 w-full flex justify-around text-gray-500 text-lg">
           <span className="text-cyan-400">💎</span>
           <span>📈</span>
           <span>👥</span>
-          <span>⚙</span>
+          <span>⚙️</span>
         </div>
       </div>
     </motion.div>
   );
 };
-// ============= MERGED HERO SECTION =============
+
+// ============= HERO SECTION (responsive, lighter) =============
 function Hero() {
+  const isDesktop = useIsDesktop();
+
   return (
-    <section className="relative h-[100vh] flex flex-col items-center justify-end bg-black overflow-hidden pb-24 md:pb-32">
-      <GalaxyStarsBackground count={200} />
-      <AnimatedTechBackground count={30} />
+    <section className="relative min-h-[90vh] flex flex-col items-center justify-center md:justify-end bg-black overflow-hidden pb-20 md:pb-28">
+      <GalaxyStarsBackground count={isDesktop ? 180 : 80} />
+      {isDesktop && <AnimatedTechBackground count={10} />}
 
       {/* PHONE */}
-      <div className="absolute top-[8%] md:top-[5%]">
-        <MobileMockup />
+      <div className="absolute top-16 sm:top-10 md:top-[6%] flex justify-center w-full pointer-events-none">
+        <div className="pointer-events-auto">
+          <MobileMockup />
+        </div>
       </div>
 
       {/* TEXT */}
-      {/* UPDATE: translate-y-14 ko badha kar translate-y-24 kar diya (Mobile ke liye niche) */}
-      {/* UPDATE: md:-translate-y-10 ko hatakar md:translate-y-4 kar diya (Desktop ke liye niche) */}
-      <div className="relative z-8 text-center container px-4 translate-y-2 md:translate-y-3">
-        <TextType text={["Empowering Ideas with", "CODIZYTECH"]} />
+      <div className="relative z-10 text-center container mx-auto px-4 
+pt-[500px] sm:pt-[520px] md:pt-0 md:translate-y-32">
+
+        <TextType text={["Empowering", "Ideas", "with", "CODIZYTECH"]} />
+        <p className="mt-4 text-sm sm:text-base text-neutral-300 max-w-xl mx-auto">
+          
+        </p>
       </div>
     </section>
   );
 }
 
-// ==================== BELOW YOUR OTHER SECTIONS WILL COME ====================
-// (I am not repeating them here for space, your same About, Banner, Services, Why Choose, etc remain unchanged)
-
 /* 🌟 About CodizyTech Section — Updated Version */
 function AboutUsSection() {
   return (
-    <section className="relative py-32 bg-black border-t border-cyan-500/20 overflow-hidden">
-      <GalaxyStarsBackground count={150} />
+    <section className="relative py-20 sm:py-24 md:py-32 bg-black border-t border-cyan-500/20 overflow-hidden">
+      <GalaxyStarsBackground count={90} />
 
-      <div className="container relative z-10 mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 max-w-7xl grid md:grid-cols-2 gap-10 md:gap-12 items-center">
         {/* Left: Image */}
         <motion.div
           className="relative rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,255,255,0.1)] border border-cyan-400/30"
-          initial={{ opacity: 0, x: -60 }}
+          initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
           <img
-            src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1000&q=80"
+            loading="lazy"
+            decoding="async"
+            src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1000&q=80&fm=webp"
             alt="About CodizyTech"
             className="w-full h-full object-cover rounded-3xl"
           />
@@ -241,47 +319,61 @@ function AboutUsSection() {
 
         {/* Right: Content */}
         <motion.div
-          initial={{ opacity: 0, x: 60 }}
+          initial={{ opacity: 0, x: 40 }}
           whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           className="space-y-6"
         >
-          <h2 className="text-5xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-200 via-blue-400 to-purple-500 bg-clip-text text-transparent">
             About <span className="text-cyan-400">CodizyTech</span>
           </h2>
 
-          <p className="text-neutral-300 text-lg leading-relaxed">
-            At <span className="text-cyan-400 font-semibold">CodizyTech</span>, we don’t just build technology —
-            we build digital ecosystems that empower innovation, accelerate growth, and transform businesses for the future.
+          <p className="text-neutral-300 text-base sm:text-lg leading-relaxed">
+            At <span className="text-cyan-400 font-semibold">CodizyTech</span>,
+            we don’t just build technology — we build digital ecosystems that
+            empower innovation, accelerate growth, and transform businesses for
+            the future.
           </p>
 
-          <div className="space-y-4 mt-6">
-            <div className="flex items-start gap-4">
-              <span className="text-cyan-400 text-2xl">🚀</span>
+          <div className="space-y-4 mt-4">
+            <div className="flex items-start gap-3">
+              <span className="text-cyan-400 text-xl sm:text-2xl">🚀</span>
               <div>
-                <h3 className="text-xl font-semibold text-cyan-300">Our Mission</h3>
-                <p className="text-neutral-400 text-sm leading-relaxed">
-                  To empower startups and enterprises with creative digital solutions that drive measurable results.
+                <h3 className="text-lg sm:text-xl font-semibold text-cyan-300">
+                  Our Mission
+                </h3>
+                <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
+                  To empower startups and enterprises with creative digital
+                  solutions that drive measurable results.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
-              <span className="text-cyan-400 text-2xl">💡</span>
+            <div className="flex items-start gap-3">
+              <span className="text-cyan-400 text-xl sm:text-2xl">💡</span>
               <div>
-                <h3 className="text-xl font-semibold text-cyan-300">Our Expertise</h3>
-                <p className="text-neutral-400 text-sm leading-relaxed">
-                  From <span className="text-cyan-400">Web & App Development</span> to <span className="text-cyan-400">AI, Data, and Digital Marketing</span>, we deliver high-performance products with precision.
+                <h3 className="text-lg sm:text-xl font-semibold text-cyan-300">
+                  Our Expertise
+                </h3>
+                <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
+                  From{" "}
+                  <span className="text-cyan-400">Web & App Development</span>{" "}
+                  to <span className="text-cyan-400">AI, Data, and Marketing</span>, 
+                  we ship high-performance solutions with precision.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
-              <span className="text-cyan-400 text-2xl">🌍</span>
+            <div className="flex items-start gap-3">
+              <span className="text-cyan-400 text-xl sm:text-2xl">🌍</span>
               <div>
-                <h3 className="text-xl font-semibold text-cyan-300">Our Vision</h3>
-                <p className="text-neutral-400 text-sm leading-relaxed">
-                  To be a global name in tech innovation — where creativity meets technology to make a difference.
+                <h3 className="text-lg sm:text-xl font-semibold text-cyan-300">
+                  Our Vision
+                </h3>
+                <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
+                  To be a global name in tech innovation — where creativity
+                  meets technology to make a real impact.
                 </p>
               </div>
             </div>
@@ -289,7 +381,7 @@ function AboutUsSection() {
 
           <a
             href="/about"
-            className="inline-block mt-8 px-8 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:scale-105 transition shadow-lg"
+            className="inline-block mt-6 px-7 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm sm:text-base font-semibold hover:scale-105 transition shadow-lg"
           >
             Learn More
           </a>
@@ -299,52 +391,82 @@ function AboutUsSection() {
   );
 }
 
-
 /* 💼 Our Services Section */
 function ServicesSection() {
   const navigate = useNavigate();
   const services = [
-    { icon: "💻", title: "Web & App Development", desc: "Building modern, scalable websites and apps." },
-    { icon: "📊", title: "Data Analysis", desc: "Transforming raw data into actionable insights." },
-    { icon: "🚀", title: "Digital Marketing", desc: "Boosting brands with SEO, SMM & strategy." },
-    { icon: "🧠", title: "AI & Automation", desc: "Smart AI solutions to enhance efficiency." },
-    { icon: "📚", title: "Research & Thesis", desc: "Expert assistance in research and writing." },
-    { icon: "🎓", title: "Training & Internship", desc: "Practical learning for future professionals." },
+    {
+      icon: "💻",
+      title: "Web & App Development",
+      desc: "Modern, scalable and responsive applications.",
+    },
+    {
+      icon: "📊",
+      title: "Data Analysis",
+      desc: "Transform raw data into actionable insights.",
+    },
+    {
+      icon: "🚀",
+      title: "Digital Marketing",
+      desc: "SEO, SMM and strategy for your brand growth.",
+    },
+    {
+      icon: "🧠",
+      title: "AI & Automation",
+      desc: "AI solutions that save time and boost output.",
+    },
+    {
+      icon: "📚",
+      title: "Research & Thesis",
+      desc: "Expert support for academic research and writing.",
+    },
+    {
+      icon: "🎓",
+      title: "Training & Internship",
+      desc: "Hands-on, industry-focused learning programs.",
+    },
   ];
 
   return (
-    <section className="relative py-32 bg-black border-t border-cyan-500/20 overflow-hidden">
-      <GalaxyStarsBackground count={150} />
-      <div className="relative z-10 container mx-auto px-6 text-center">
+    <section className="relative py-20 sm:py-24 md:py-32 bg-black border-t border-cyan-500/20 overflow-hidden">
+      <GalaxyStarsBackground count={90} />
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 max-w-7xl text-center">
         <motion.h2
-          className="text-5xl font-extrabold mb-6 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent"
-          initial={{ opacity: 0, y: 30 }}
+          className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-cyan-300 mb-4 sm:mb-6"
+
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
         >
           Our Services
         </motion.h2>
-        <p className="text-neutral-300 text-lg max-w-3xl mx-auto mb-12">
-          Empowering innovation through a complete suite of digital and technical services.
+        <p className="text-neutral-300 text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-10 sm:mb-12">
+          Empowering innovation with a complete suite of digital and technical
+          services.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
           {services.map((s, i) => (
             <motion.div
               key={i}
-              className="relative p-8 rounded-2xl bg-gradient-to-br from-cyan-900/30 to-black border border-cyan-400/30 shadow-xl backdrop-blur-sm hover:border-cyan-400 hover:shadow-cyan-400/40 transition-all duration-500"
-              initial={{ opacity: 0, y: 40 }}
+              className="relative p-6 sm:p-7 rounded-2xl bg-black/80 border border-cyan-400/20 shadow-xl backdrop-blur-sm hover:border-cyan-400/50 hover:shadow-cyan-400/30 transition-all duration-500"
+
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
             >
-              <div className="text-5xl mb-4">{s.icon}</div>
-              <h3 className="text-2xl font-semibold text-cyan-300 mb-2">
-                {s.title}
-              </h3>
-              <p className="text-neutral-300 text-sm leading-relaxed mb-6">
+              <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{s.icon}</div>
+              <h3 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent mb-2">
+  {s.title}
+</h3>
+
+              <p className="text-neutral-300 text-sm sm:text-base leading-relaxed mb-5">
                 {s.desc}
               </p>
               <button
                 onClick={() => navigate("/services")}
-                className="mt-2 px-5 py-2 rounded-full bg-cyan-600 text-white font-medium hover:bg-cyan-400 transition"
+                className="px-5 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-400 text-white text-sm sm:text-base font-medium hover:scale-105 transition shadow-lg"
+
               >
                 Learn More
               </button>
@@ -356,42 +478,51 @@ function ServicesSection() {
   );
 }
 
-/* 💎 Why Choose Us Section (with React Icons) */
+/* 💎 Why Choose Us Section */
 function WhyChooseUsSection() {
   const features = [
     {
-      icon: <FaLightbulb className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />,
+      icon: (
+        <FaLightbulb className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />
+      ),
       title: "Innovative Solutions",
-      desc: "We use next-gen technologies and creative ideas to deliver smart digital products that stand out.",
+      desc: "We use next-gen technologies and creative ideas to deliver standout products.",
     },
     {
-      icon: <FaCogs className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />,
+      icon: (
+        <FaCogs className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />
+      ),
       title: "Proven Efficiency",
-      desc: "Our streamlined process ensures quality and speed without compromising innovation or reliability.",
+      desc: "Our streamlined process ensures both speed and quality — without compromise.",
     },
     {
-      icon: <FaGem className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />,
+      icon: (
+        <FaGem className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />
+      ),
       title: "Long-Term Value",
-      desc: "We focus on scalable solutions that keep performing and growing along with your business.",
+      desc: "We build solutions that are scalable, secure and ready to grow with you.",
     },
     {
-      icon: <FaHandshake className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />,
+      icon: (
+        <FaHandshake className="text-cyan-300 text-3xl drop-shadow-[0_0_10px_#00ffff]" />
+      ),
       title: "Trusted Partnership",
-      desc: "We collaborate closely with our clients, ensuring transparency, trust, and shared success.",
+      desc: "We collaborate closely, ensuring transparency, trust and shared success.",
     },
   ];
 
   return (
-    <section className="relative py-32 bg-black border-t border-cyan-500/20 overflow-hidden">
-      <GalaxyStarsBackground count={120} />
+    <section className="relative py-20 sm:py-24 md:py-32 bg-black border-t border-cyan-500/20 overflow-hidden">
+      <GalaxyStarsBackground count={80} />
 
-      <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl grid md:grid-cols-2 gap-10 md:gap-12 items-center relative z-10">
         {/* Left Column */}
         <div className="space-y-6">
           <motion.h2
-            className="text-5xl font-extrabold mb-8 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: 40 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 sm:mb-6 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent"
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
           >
             Why Choose <span className="text-cyan-400">CodizyTech?</span>
           </motion.h2>
@@ -399,19 +530,22 @@ function WhyChooseUsSection() {
           {features.map((item, i) => (
             <motion.div
               key={i}
-              className="flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-cyan-900/30 to-black border border-cyan-400/20 shadow-[0_0_25px_rgba(0,255,255,0.05)] hover:shadow-[0_0_40px_rgba(0,255,255,0.2)] backdrop-blur-md transition-all duration-500"
-              initial={{ opacity: 0, x: -30 }}
+              className="flex items-start gap-4 sm:gap-5 p-4 sm:p-5 rounded-2xl bg-black/80 border border-cyan-400/20 shadow-[0_0_20px_rgba(0,255,255,0.05)] hover:border-cyan-400/50 hover:shadow-[0_0_40px_rgba(0,255,255,0.25)] backdrop-blur-md transition-all duration-500"
+
+              initial={{ opacity: 0, x: -25 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
             >
-              <div className="p-3 bg-cyan-950/50 rounded-xl border border-cyan-500/30 shadow-inner flex items-center justify-center">
+              <div className="p-3 bg-black/60 border border-cyan-400/30 rounded-xl border border-cyan-500/30 shadow-inner flex items-center justify-center">
                 {item.icon}
               </div>
               <div>
-                <h3 className="text-lg md:text-xl font-semibold text-cyan-200">
-                  {item.title}
-                </h3>
-                <p className="text-neutral-300 text-sm md:text-base leading-relaxed mt-1">
+              <h3 className="text-base sm:text-lg md:text-xl font-semibold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+  {item.title}
+</h3>
+
+                <p className="text-neutral-300 text-sm sm:text-base leading-relaxed mt-1">
                   {item.desc}
                 </p>
               </div>
@@ -421,13 +555,16 @@ function WhyChooseUsSection() {
 
         {/* Right Column: Image */}
         <motion.div
-          className="relative rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,255,255,0.15)] border border-cyan-400/30"
-          initial={{ opacity: 0, x: 40 }}
+          className="relative rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,255,255,0.15)] border border-cyan-400/30 mt-6 md:mt-0"
+          initial={{ opacity: 0, x: 25 }}
           whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
           <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80"
+            loading="lazy"
+            decoding="async"
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80&fm=webp"
             alt="Why Choose Us"
             className="w-full h-full object-cover rounded-3xl"
           />
@@ -449,40 +586,41 @@ function GallerySection() {
     "https://images.unsplash.com/photo-1522071820081-009f0129c71c",
     "https://images.unsplash.com/photo-1531297484001-80022131f5a1",
     "https://images.unsplash.com/photo-1581090700227-1e37b190418e",
-   // "https://images.unsplash.com/photo-1518770660439-4636190af475",
-    //"https://images.unsplash.com/photo-1551434678-e076c223a692",
-    //"https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
-    //"https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
   ];
 
   return (
-    <section className="relative py-24 bg-black border-t border-cyan-500/20 overflow-hidden">
-      <GalaxyStarsBackground count={100} />
-      <div className="relative z-10 container mx-auto px-6">
+    <section className="relative py-20 sm:py-24 bg-black border-t border-cyan-500/20 overflow-hidden">
+      <GalaxyStarsBackground count={70} />
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 max-w-7xl">
         <motion.h2
-          className="text-center text-5xl font-extrabold mb-12 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-        >
-          Our Gallery
-        </motion.h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-  {galleryImages.map((src, i) => (
-    <motion.div
-      key={i}
-      className="relative overflow-hidden rounded-xl group border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-500"
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-    >
-      <img
-        src={`${src}?auto=format&fit=crop&w=800&q=80`}
-        alt={`Gallery ${i + 1}`}
-        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-      />
-    </motion.div>
-  ))}
-</div>
+         className="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold text-cyan-300 mb-8 sm:mb-12"
 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          Our Gallery(Updating soon….)
+        </motion.h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {galleryImages.map((src, i) => (
+            <motion.div
+              key={i}
+              className="relative overflow-hidden rounded-xl group border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-500"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+            >
+             <img
+  loading="lazy"
+  decoding="async"
+  src={`${src}?auto=format&fit=crop&w=800&q=80&fm=webp`}
+  alt={`Gallery ${i + 1}`}
+  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110"
+/>
+
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -494,63 +632,72 @@ function OfferingsSection() {
     {
       title: "Custom Web Solutions",
       desc: "Pixel-perfect, scalable web apps tailored to your brand.",
-      img: "https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&fit=crop&w=800&q=80&fm=webp",
       btn: "Get Started",
       link: "/services#web",
     },
     {
       title: "AI & Data Analytics",
       desc: "Make smarter decisions with next-gen data insights.",
-      img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80&fm=webp",
       btn: "Learn More",
       link: "/services#data",
     },
     {
       title: "Digital Marketing",
-      desc: "Amplify your digital presence with our strategies.",
-      img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80",
+      desc: "Amplify your digital presence with powerful strategies.",
+      img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80&fm=webp",
       btn: "Explore",
       link: "/services#marketing",
     },
     {
       title: "Training & Internship",
       desc: "Gain hands-on experience with our guided programs.",
-      img: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&q=80&fm=webp",
       btn: "Join Now",
       link: "/career",
     },
   ];
 
   return (
-    <section className="relative py-24 bg-gradient-to-b from-black via-cyan-950/20 to-black border-t border-cyan-500/20">
-      <GalaxyStarsBackground count={120} />
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <h2 className="text-5xl font-extrabold mb-12 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-          Our Offerings courses
+    <section className="relative py-20 sm:py-24 md:py-32 bg-black border-t border-cyan-500/20 overflow-hidden">
+    <GalaxyStarsBackground count={80} />
+  
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 max-w-7xl text-center">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-cyan-300 mb-8 sm:mb-12">
+          Our Offerings Courses
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {offerings.map((item, i) => (
             <div
               key={i}
-              className="rounded-2xl bg-gradient-to-b from-white/5 to-black/60 border border-cyan-400/20 overflow-hidden hover:shadow-cyan-400/40 transition-all"
+              className="rounded-2xl bg-gradient-to-b from-white/5 to-black/80 border border-cyan-400/20 overflow-hidden hover:shadow-cyan-400/40 transition-all"
             >
               <img
+                loading="lazy"
+                decoding="async"
                 src={item.img}
                 alt={item.title}
-                className="w-full h-48 object-cover"
+                className="w-full h-44 sm:h-48 object-cover"
               />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-neutral-300 mb-4">{item.desc}</p>
-                <a
-                  href={item.link}
-                  className="px-5 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:scale-105 transition"
-                >
-                  {item.btn}
-                </a>
-              </div>
+          <div className="p-5 sm:p-6 text-center">
+          <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent mb-2">
+
+    {item.title}
+  </h3>
+  <p className="text-neutral-300 text-sm sm:text-base mb-4">
+    {item.desc}
+  </p>
+
+  <a
+    href={item.link}
+    className="px-5 py-2 rounded-full bg-black border border-cyan-100 text-cyan-300 text-sm sm:text-base font-medium hover:bg-cyan-500/10 hover:border-cyan-300 transition shadow-md hover:shadow-cyan-400/20"
+
+  >
+    {item.btn}
+  </a>
+</div>
+
             </div>
           ))}
         </div>
@@ -558,61 +705,53 @@ function OfferingsSection() {
     </section>
   );
 }
-/* 🌠 Updated Banner Section (HD + Clear + Neon Glow) */
+
+/* 🌠 Updated Banner Section (responsive height + lazy) */
 function BannerSection({ img }) {
   return (
-    <section className="relative h-[40vh] border-t border-blue-500/20 overflow-hidden bg-black">
-      <img
-        src={img}
-        alt="Banner"
-        className="w-full h-full object-cover 
-        brightness-110 contrast-125 saturate-125 
-        drop-shadow-[0_0_20px_rgba(0,200,255,0.3)]"
-      />
-
-      {/* Light Neon Overlay (very subtle, no darkness) */}
-      <div className="absolute inset-0 bg-gradient-to-b 
-      from-black/10 via-[#00eaff10] to-black/20 pointer-events-none"></div>
-
-      {/* Soft Neon Blue Glow */}
-      <div className="absolute inset-0 
-      bg-[radial-gradient(circle_at_center,rgba(0,234,255,0.15),transparent_70%)]
-      pointer-events-none"></div>
+    <section className="w-full overflow-hidden bg-black px-0">
+      <div className="relative w-full h-[220px] sm:h-[280px] md:h-[350px] lg:h-[400px]">
+        <img
+          src={img}
+          alt="Banner"
+          className="absolute inset-0 w-full h-full object-contain object-center scale-100"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
     </section>
   );
 }
 
-/* 💬 Realistic WhatsApp Floating Button with Glowing Ring Effect */
+
+/* 💬 WhatsApp Floating Button */
 const WhatsAppButton = () => (
   <motion.div
-    className="fixed bottom-6 right-6 z-50"
+    className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50"
     initial={{ scale: 0 }}
-    animate={{ scale: [0, 1.2, 1], transition: { duration: 0.6 } }}
+    animate={{ scale: [0, 1.15, 1], transition: { duration: 0.6 } }}
   >
-    {/* 🌊 Ring Wave Animation */}
     <span className="absolute inset-0 flex items-center justify-center">
-      <span className="absolute w-16 h-16 rounded-full bg-[#25D366]/30 animate-ping" />
-      <span className="absolute w-20 h-20 rounded-full bg-[#25D366]/20 animate-ping delay-150" />
-      <span className="absolute w-24 h-24 rounded-full bg-[#25D366]/10 animate-ping delay-300" />
+      <span className="absolute w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#25D366]/30 animate-ping" />
+      <span className="absolute w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#25D366]/20 animate-ping delay-150" />
+      <span className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#25D366]/10 animate-ping delay-300" />
     </span>
 
-    {/* 💬 Main WhatsApp Button */}
     <motion.a
       href="https://wa.me/918770182940"
       target="_blank"
       rel="noopener noreferrer"
-      className="relative flex items-center justify-center w-16 h-16 rounded-full bg-[#25D366] shadow-[0_0_25px_rgba(37,211,102,0.6)] hover:shadow-[0_0_40px_rgba(37,211,102,0.8)] transition-all duration-300"
+      className="relative flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#25D366] shadow-[0_0_25px_rgba(37,211,102,0.6)] hover:shadow-[0_0_40px_rgba(37,211,102,0.8)] transition-all duration-300"
       whileHover={{
-        scale: 1.1,
+        scale: 1.08,
         boxShadow: "0 0 45px rgba(37,211,102,0.9)",
       }}
     >
-      {/* ✅ Original WhatsApp Logo (SVG Vector) */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 32 32"
         fill="white"
-        className="w-8 h-8"
+        className="w-6 h-6 sm:w-8 sm:h-8"
       >
         <path d="M16.001 3.2c-7.062 0-12.8 5.738-12.8 12.8 0 2.256.597 4.465 1.734 6.403L3.2 28.8l6.531-1.716A12.738 12.738 0 0 0 16 28.8c7.062 0 12.8-5.738 12.8-12.8S23.063 3.2 16.001 3.2zm6.541 18.472c-.272.767-1.6 1.419-2.239 1.453-.597.035-1.362.05-2.198-.15-.504-.12-1.151-.374-1.982-.733-3.487-1.51-5.75-4.976-5.925-5.209-.173-.233-1.413-1.877-1.413-3.579 0-1.701.893-2.541 1.21-2.888.317-.346.693-.433.924-.433.231 0 .462.002.665.012.213.01.497-.08.778.594.272.665.925 2.308 1.007 2.475.083.173.138.374.025.607-.11.233-.166.374-.317.578-.15.203-.317.457-.453.61-.15.173-.308.362-.132.696.173.334.769 1.267 1.652 2.053 1.136 1.014 2.093 1.334 2.426 1.508.334.173.526.15.718-.091.192-.231.834-.971 1.057-1.304.223-.334.446-.28.749-.163.308.12 1.944.917 2.278 1.083.334.166.557.25.638.385.086.138.086.798-.186 1.565z" />
       </svg>
@@ -620,29 +759,26 @@ const WhatsAppButton = () => (
   </motion.div>
 );
 
-
-
 export default function Home() {
   return (
     <>
-      <SEO title="Home" description="Modern technology solutions — web, mobile, AI, data." />
+      <SEO
+        title="Home"
+        description="Modern technology solutions — web, mobile, AI, data."
+      />
       <Hero />
-      <BannerSection img="/images/b6.png" />
+      <BannerSection img="/images/c1.webp" />
+
       <AboutUsSection />
-      <BannerSection img="/images/b6.png" />
+      <BannerSection img="/images/d3.png" />
       <ServicesSection />
-      <BannerSection img="/images/b7.jpg" />
+      <BannerSection img="/images/d2.png" />
       <WhyChooseUsSection />
-      <BannerSection img="/images/b5.jpg" />
+      <BannerSection img="/images/d4.png" />
       <GallerySection />
-      <BannerSection img="/images/b6.png" />
+      <BannerSection img="/images/c4.webp" />
       <OfferingsSection />
-
-      {/* 🦶 Footer Section Added */}
       <Footer />
-      
-
-      {/* 💬 Floating WhatsApp Button */}
       <WhatsAppButton />
     </>
   );
